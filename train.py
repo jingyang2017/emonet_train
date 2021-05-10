@@ -184,7 +184,7 @@ def main():
             callback_logging(global_step, losses, losses_au,acces, epoch, optimizer)
         val_results = callback_validation_valid(epoch, model)
         test_results = callback_validation_test(epoch, model)
-        callback_checkpoint(epoch, model)
+        torch.save(model.module.predictor.state_dict(), os.path.join(args.output, "backbone_%d.pth"%epoch))
         scheduler.step()
 
 if __name__ == '__main__':
