@@ -140,18 +140,21 @@ class dataloader(Dataset):
         valence = torch.tensor([float(sample_data['annot']['valence'])], dtype=torch.float32)
         arousal = torch.tensor([float(sample_data['annot']['arousal'])], dtype=torch.float32)
         expression = int(sample_data['annot']['expression'])
+
         if self.n_expression == 5 and expression == 6:
             expression = 4
+
         bounding_box = sample_data['det']['bbox'][0:4]
         if isinstance(bounding_box, list):
             bounding_box = np.array(bounding_box)
+
         image = cv2.imread(image_file)
         scale, center = get_scale_center(bounding_box, scale_=self.scale)
 
         if self.subset == 'train':
             aug_rot = (self.rng.rand() * 2 - 1) * 15  # in deg.
             aug_scale = self.rng.rand() * 0.25 * 2 + (1 - 0.25)  # ex: random_scaling is .25
-            scale  = scale*aug_scale
+            scale = scale*aug_scale
             dx = self.rng.randint(-10 * scale, 10 * scale) / center[0]  # in px
             dy = self.rng.randint(-10 * scale, 10 * scale) / center[1]
         else:
