@@ -51,46 +51,33 @@ class dataloader(Dataset):
         # List of each expression to generate weights
         expressions = []
         for key, value in data.items():
-            # if key == 'folder':
-            #     continue
             if 'Manually' not in value['path']:
                 continue
-
             image_file = self.root_path + '/' + self.image_path[key]
             if not os.path.isfile(image_file):
                 self.skipped['missed'].append(key)
                 continue
-
             if 'det' not in value.keys():
                 self.skipped['det'].append(key)
                 continue
-
             if 'bbox' not in value['det'].keys():
                 self.skipped['det'].append(key)
                 continue
-
             if 'annot' not in value.keys():
                 self.skipped['annot'].append(key)
                 continue
-
             if (int(value['annot']['expression']) not in self._expressions_indices[self.n_expression]):
                 self.skipped['expression'].append(key)
                 continue
 
             if not (int(value['type'])==type_value):
-                # self.skipped['type'].append(key)
                 continue
-
-
-
             expression = int(value['annot']['expression'])
             if self.cleaned_set:
                 # Automatic cleaning : expression has to match the valence and arousal values
                 valence = float(value['annot']['valence'])
                 arousal = float(value['annot']['arousal'])
-                
                 intensity = math.sqrt(valence ** 2 + arousal ** 2)
-
                 if expression == 0 and intensity >= 0.2:
                     self.skipped['other'].append(key)
                     continue
@@ -126,8 +113,8 @@ class dataloader(Dataset):
         self.sample_per_class = {label: np.sum(expressions == label) for label in np.unique(expressions)}
         self.expression_weights = np.array([1. / self.sample_per_class[e] for e in expressions])
         self.average_per_class = int(np.mean(list(self.sample_per_class.values())))
-        self.weight = np.array([1.0/self.sample_per_class[ii] for ii in range(self.n_expression)])
-        self.weight = torch.from_numpy(self.weight).float().squeeze()
+        # self.weight = np.array([1.0/self.sample_per_class[ii] for ii in range(self.n_expression)])
+        # self.weight = torch.from_numpy(self.weight).float().squeeze()
 
         if self.verbose:
             skipped = sum([len(self.skipped[key]) for key in self.skipped])
