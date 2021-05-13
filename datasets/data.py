@@ -7,10 +7,9 @@ import torch
 import math
 import socket
 from torch.utils.data import Dataset
-from skimage import io
+from .utils import get_scale_center,get_transform
 
 hostname = socket.gethostname()
-# if hostname.startswith(''):
 root_path = '/media/jd4615/dataB/Datasets/affectnet/'
 
 class dataloader(Dataset):
@@ -19,9 +18,9 @@ class dataloader(Dataset):
     _expressions_indices = {8: [0, 1, 2, 3, 4, 5, 6, 7],
                             5: [0, 1, 2, 3, 6]}
 
-    def __init__(self, subset='train',
-                 transform_image_shape=None, transform_image=None,
-                 n_expression=5, verbose=1, cleaned_set=True):
+    def __init__(self, subset='train', transform_image=None, scale=220, n_expression=5, verbose=1, cleaned_set=True,seed=0):
+        self.rng = np.random.RandomState(seed=seed)
+        self.scale = scale
         self.image_path = torch.load(root_path+'index2img.pkl')
         self.root_path = root_path
         self.subset = subset
@@ -34,7 +33,6 @@ class dataloader(Dataset):
         else:
             raise ValueError(f'subset name should be train,valid,test, but got subset={self.subset}')
             
-        self.transform_image_shape = transform_image_shape
         self.transform_image = transform_image
         self.verbose = verbose
         self.cleaned_set = cleaned_set
@@ -148,36 +146,36 @@ class dataloader(Dataset):
         return len(self.keys)
 
     def __getitem__(self, index):
-        # weight = self.expression_weights[index]
+        im_w = 256
         key = self.keys[index]
         sample_data = self.data[key]
         image_file = self.root_path+'/'+self.image_path[key]
         valence = torch.tensor([float(sample_data['annot']['valence'])], dtype=torch.float32)
         arousal = torch.tensor([float(sample_data['annot']['arousal'])], dtype=torch.float32)
         expression = int(sample_data['annot']['expression'])
-
         if self.n_expression == 5 and expression == 6:
             expression = 4
-
         bounding_box = sample_data['det']['bbox'][0:4]
-
         if isinstance(bounding_box, list):
             bounding_box = np.array(bounding_box)
+        image = cv2.imread(image_file)
+        scale, center = get_scale_center(bounding_box, scale_=self.scale)
 
-        # image = cv2.imread(image_file)
-        # image = cv2.rectangle(image, (int(bounding_box[:2][0]),int(bounding_box[:2][1])), (int(bounding_box[2:][0]),int(bounding_box[2:][1])),(255, 0, 0),2)
-        # cv2.imwrite('%s.jpg'%key,image)
-        image = io.imread(image_file)
-        if self.transform_image_shape is not None:
-            # bounding_box = [landmarks.min(axis=0)[0], landmarks.min(axis=0)[1],
-            #                 landmarks.max(axis=0)[0], landmarks.max(axis=0)[1]]
-            # image, landmarks = self.transform_image_shape(image, shape=landmarks)
-            image, landmarks = self.transform_image_shape(image, bb=bounding_box)
-            # Fix for PyTorch currently not supporting negative stric
-            image = np.ascontiguousarray(image)
-        # cv2.imwrite('%s_2.jpg' % key, image)
-        if self.transform_image is not None:
-            image = self.transform_image(image)
+        if self.subset == 'train':
+            aug_rot = (self.rng.rand() * 2 - 1) * 15  # in deg.
+            aug_scale = self.rng.rand() * 0.25 * 2 + (1 - 0.25)  # ex: random_scaling is .25
+            scale  = scale*aug_scale
+            dx = self.rng.randint(-10 * scale, 10 * scale) / center[0]  # in px
+            dy = self.rng.randint(-10 * scale, 10 * scale) / center[1]
+        else:
+            aug_rot = 0
+            dx, dy = 0, 0
 
-        return dict(valence=valence, arousal=arousal, expression=expression, image=image,au=[])
+        center[0] += dx * center[0]
+        center[1] += dy * center[1]
+        mat = get_transform(center, scale, (im_w, im_w), aug_rot)[:2]
+        image = cv2.warpAffine(image, mat, (im_w, im_w))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = self.transform_image(image)
+        return dict(valence=valence, arousal=arousal, expression=expression, image=image)
 
