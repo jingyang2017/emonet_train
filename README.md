@@ -1,7 +1,7 @@
 # Unofficial implementation of paper: Estimation of continuous valence and arousal levels from faces in naturalistic conditions
-** Code is partly forked/copied from the official code of [emonet](https://github.com/face-analysis/emonet)**
+* Code is partly forked/copied from the official code of [emonet](https://github.com/face-analysis/emonet)*
 
-# Traing and evaluation
+# Training and evaluation
 ## step1:
 `python train.py --nclassses 5 `
 ## step2:
