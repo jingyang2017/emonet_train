@@ -10,7 +10,7 @@ from torch.utils.data import Dataset
 from .utils import get_scale_center,get_transform
 
 hostname = socket.gethostname()
-root_path = '/media/jd4615/dataB/Datasets/affectnet/'
+root_path = 'Datasets/affectnet/'
 
 class dataloader(Dataset):
     _expressions = {0: 'neutral', 1: 'happy', 2: 'sad', 3: 'surprise', 4: 'fear', 5: 'disgust', 6: 'anger',
