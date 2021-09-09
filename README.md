@@ -1,7 +1,4 @@
-# Estimation of continuous valence and arousal levels from faces in naturalistic conditions, Nature Machine Intelligence 2021
-
-Unofficial implementation of the paper _"Estimation of continuous valence and arousal levels from faces in naturalistic conditions"_, Antoine Toisoul, Jean Kossaifi, Adrian Bulat, Georgios Tzimiropoulos and Maja Pantic, published in Nature Machine Intelligence, January 2021.
-
+# Unofficial implementation of paper: Estimation of continuous valence and arousal levels from faces in naturalistic conditions
 ** Code is partly forked/copied from the official code of [emonet](https://github.com/face-analysis/emonet)**
 
 # Traing and evaluation
@@ -9,4 +6,7 @@ Unofficial implementation of the paper _"Estimation of continuous valence and ar
 `python train.py --nclassses 5 `
 ## step2:
 `python train.py --nclassses 5 --kd --kd_w 0.3 --path step1_model_path`
+
+## References
+\[1\] Toisoul, Antoine, Jean Kossaifi, Adrian Bulat, Georgios Tzimiropoulos, and Maja Pantic. "[Estimation of continuous valence and arousal levels from faces in naturalistic conditions.](https://rdcu.be/cdnWi)" _Nature Machine Intelligence_ 3, no. 1 (2021): 42-50.
 
