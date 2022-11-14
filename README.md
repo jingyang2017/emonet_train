@@ -12,3 +12,7 @@ Code is partly forked/copied from the official code of [emonet](https://github.c
 ## References
 \[1\] Toisoul, Antoine, Jean Kossaifi, Adrian Bulat, Georgios Tzimiropoulos, and Maja Pantic. "[Estimation of continuous valence and arousal levels from faces in naturalistic conditions.](https://rdcu.be/cdnWi)" _Nature Machine Intelligence_ 3, no. 1 (2021): 42-50.
 
+# extention
+Apply emonet_train to facial action unit detection:
+https://github.com/jingyang2017/aunet_train
+
